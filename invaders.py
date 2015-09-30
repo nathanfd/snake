@@ -10,7 +10,7 @@ def init():
     TELA = pygame.display.set_mode(TAMANHO_TELA)
 
 class Nave(pygame.sprite.Sprite):
-    def __init__(self, x, y, cor, tx=TAMANHO, ty=TAMANHO):
+    def __init__(self, x, y, cor, tx=TAMANHO, ty=TAMANHO, imagem=None):
         super(Nave, self).__init__()
         self.x = x
         self.y = y
@@ -19,8 +19,14 @@ class Nave(pygame.sprite.Sprite):
         self.cor = cor
         self.tx = tx; self.ty = ty
         self.velocidade = 10
-         
-      
+        
+        self.imagem = imagem
+        self.carregar()
+     
+    def carregar(self):
+        if self.imagem is None:
+            return
+        self.imagem = pygame.image.load("imagens/" + self.imagem)
      
     def apaga(self):
         pygame.draw.rect(TELA, (0,0,0), (self.ox, self.oy, self.tx, self.ty) )
@@ -32,7 +38,10 @@ class Nave(pygame.sprite.Sprite):
     def desenha(self):
         self.rect = pygame.Rect ( (self.x, self.y, self.tx, self.ty) )
         self.apaga()
-        pygame.draw.rect(TELA, self.cor, self.rect)
+        if not self.imagem:
+            pygame.draw.rect(TELA, self.cor, self.rect)
+        else:
+            TELA.blit(self.imagem, self.rect)
         self.ox = self.x
         self.oy = self.y
         
@@ -70,7 +79,7 @@ def principal():
     inimigo = Inimigo(0, 0)
     x = TAMANHO_TELA[0] // 2
     y = TAMANHO_TELA[1] - TAMANHO
-    nave = Nave(x, y, COR_NAVE)
+    nave = Nave(x, y, COR_NAVE, imagem="nave.png")
     velocidade = 10
     tiros = pygame.sprite.Group()
     velocidade_inimigo = 5
