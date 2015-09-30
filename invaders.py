@@ -56,9 +56,9 @@ class Tiro(Nave):
                 inimigo.kill()
     
 class Inimigo(Nave):
-    def __init__(self, x, y):
+    def __init__(self, x, y, imagem=None):
         cor = (255, 0,0)
-        super(Inimigo, self).__init__(x, y, cor, TAMANHO, TAMANHO)
+        super(Inimigo, self).__init__(x, y, cor, TAMANHO, TAMANHO, imagem)
         self.velocidade = 5
 
         
