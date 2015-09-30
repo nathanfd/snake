@@ -25,11 +25,17 @@ class Nave(object):
         pygame.draw.rect(TELA, self.cor, self.rect)
         self.ox = self.x
         self.oy = self.y
+        
+class Tiro(Nave):
+    pass
+    
+class Inimigo(Nave):
+    pass
 
 MAX_TIROS = 10
 MAX_INIMIGOS = 10
 def principal():
-    inimigo = Nave(0, 0, (255,0,0))
+    inimigo = Inimigo(0, 0, (255,0,0))
     x = TAMANHO_TELA[0] // 2
     y = TAMANHO_TELA[1] - TAMANHO
     nave = Nave(x, y, COR_NAVE)
@@ -40,7 +46,7 @@ def principal():
     contador = 0 
     while True:
         if contador > 30 and len(inimigos) < MAX_INIMIGOS:
-            inimigos.append(Nave(0, 0 , (255, 0, 0)))
+            inimigos.append(Inimigo(0, 0 , (255, 0, 0)))
             contador = 0
         contador += 1
         pygame.event.pump()
@@ -52,7 +58,7 @@ def principal():
         if teclas[K_ESCAPE]:
             break
         if teclas[K_SPACE] and len(tiros) <= MAX_TIROS:
-            tiro = Nave(nave.x + TAMANHO//2, TAMANHO_TELA[1] - TAMANHO,
+            tiro = Tiro(nave.x + TAMANHO//2, TAMANHO_TELA[1] - TAMANHO,
                         (255, 255,255), 12, 23)
             tiros.append(tiro)
 
