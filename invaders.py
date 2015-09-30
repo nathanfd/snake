@@ -9,16 +9,26 @@ def init():
     global TELA
     TELA = pygame.display.set_mode(TAMANHO_TELA)
 
-class Nave(object):
+class Nave(pygame.sprite.Sprite):
     def __init__(self, x, y, cor, tx=TAMANHO, ty=TAMANHO):
+        super(Nave, self).__init__()
         self.x = x
         self.y = y
         self.ox = x
         self.oy = y
         self.cor = cor
         self.tx = tx; self.ty = ty
+        self.velocidade = 10
+         
+      
+     
     def apaga(self):
         pygame.draw.rect(TELA, (0,0,0), (self.ox, self.oy, self.tx, self.ty) )
+        
+    def kill(self):
+        self.apaga()
+        super(Nave, self).kill()
+        
     def desenha(self):
         self.rect = pygame.Rect ( (self.x, self.y, self.tx, self.ty) )
         self.apaga()
@@ -27,26 +37,49 @@ class Nave(object):
         self.oy = self.y
         
 class Tiro(Nave):
-    pass
+    def atualiza(self, inimigos):
+        self.y -= self.velocidade
+        self.desenha()
+        if self.y < 0:
+            self.kill()
+        for inimigo in inimigos:
+            if self.rect.colliderect(inimigo.rect):
+                inimigo.kill()
     
 class Inimigo(Nave):
-    pass
+    def __init__(self, x, y):
+        cor = (255, 0,0)
+        super(Inimigo, self).__init__(x, y, cor, TAMANHO, TAMANHO)
+        self.velocidade = 5
+
+        
+    def atualiza(self):
+        self.x += self.velocidade
+        if self.x > TAMANHO_TELA[0]:
+            self.x = 0
+            self.y += TAMANHO + 10
+            if self.y >= TAMANHO_TELA[1]:
+                print("Voce morreu")
+                raise Exception("Voce morreu")
+        self.desenha()
+    
 
 MAX_TIROS = 10
 MAX_INIMIGOS = 10
 def principal():
-    inimigo = Inimigo(0, 0, (255,0,0))
+    inimigo = Inimigo(0, 0)
     x = TAMANHO_TELA[0] // 2
     y = TAMANHO_TELA[1] - TAMANHO
     nave = Nave(x, y, COR_NAVE)
     velocidade = 10
-    tiros = []
+    tiros = pygame.sprite.Group()
     velocidade_inimigo = 5
-    inimigos = [inimigo]
+    inimigos = pygame.sprite.Group()
+    inimigos.add(inimigo)
     contador = 0 
     while True:
         if contador > 30 and len(inimigos) < MAX_INIMIGOS:
-            inimigos.append(Inimigo(0, 0 , (255, 0, 0)))
+            inimigos.add(Inimigo(0, 0))
             contador = 0
         contador += 1
         pygame.event.pump()
@@ -60,38 +93,18 @@ def principal():
         if teclas[K_SPACE] and len(tiros) <= MAX_TIROS:
             tiro = Tiro(nave.x + TAMANHO//2, TAMANHO_TELA[1] - TAMANHO,
                         (255, 255,255), 12, 23)
-            tiros.append(tiro)
+            tiros.add(tiro)
+
+        nave.desenha()
 
         for inimigo in inimigos:
-            inimigo.x += velocidade_inimigo
-            if inimigo.x > TAMANHO_TELA[0]:
-                inimigo.x = 0
-                inimigo.y += TAMANHO
-                if inimigo.y >= TAMANHO_TELA[1]:
-                    print("Voce morreu")
-                    break
-            inimigo.desenha()
-            
-        nave.desenha()
-        novos_tiros = []
-        for tiro in tiros:
-            tiro.y -= velocidade
-            tiro.desenha()
-            if tiro.y > 0:
-                novos_tiros.append(tiro)
-            else: tiro.apaga()
-            novos_inimigos = []
-            for inimigo in inimigos:
-                if not tiro.rect.colliderect(inimigo.rect):
-                    novos_inimigos.append(inimigo)
-                else:
-                    inimigo.apaga()
-            inimigos = novos_inimigos
-        tiros = novos_tiros
-        pygame.display.flip()
-    
-        pygame.time.delay(30)
+            inimigo.atualiza()
 
+        for tiro in tiros:
+            tiro.atualiza(inimigos)            
+        
+        pygame.display.flip()
+        pygame.time.delay(30)
 
 try:
     init()
